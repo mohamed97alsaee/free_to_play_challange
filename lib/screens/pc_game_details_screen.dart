@@ -5,6 +5,8 @@ import 'package:freetoplaychallange/models/detailed_pc_game_model.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:url_launcher/url_launcher.dart';
+
 class PCGameDetailsScreen extends StatefulWidget {
   const PCGameDetailsScreen({super.key, required this.gameId});
   final String gameId;
@@ -49,35 +51,61 @@ class _PCGameDetailsScreenState extends State<PCGameDetailsScreen> {
               : SingleChildScrollView(
                   child: Column(
                     children: [
-                      Container(
-                        width: size.width,
-                        height: size.height * 0.4,
-                        decoration: BoxDecoration(
-                          borderRadius: const BorderRadius.only(
-                            bottomLeft: Radius.circular(50),
-                            bottomRight: Radius.circular(50),
-                          ),
-                          image: DecorationImage(
-                            image: NetworkImage(
-                              game.thumbnail,
+                      Stack(
+                        children: [
+                          Container(
+                            width: size.width,
+                            height: size.height * 0.4,
+                            decoration: BoxDecoration(
+                              borderRadius: const BorderRadius.only(
+                                bottomLeft: Radius.circular(50),
+                                bottomRight: Radius.circular(50),
+                              ),
+                              image: DecorationImage(
+                                image: NetworkImage(
+                                  game.thumbnail,
+                                ),
+                                fit: BoxFit.cover,
+                              ),
                             ),
-                            fit: BoxFit.cover,
                           ),
-                        ),
+                          Positioned(
+                              top: 0,
+                              right: 0,
+                              child: SafeArea(
+                                child: IconButton(
+                                    onPressed: () {
+                                      launchUrl(Uri.parse(game.gameUrl));
+                                    },
+                                    icon: const FaIcon(
+                                      FontAwesomeIcons.share,
+                                      color: Colors.white,
+                                    )),
+                              ))
+                        ],
                       ),
-                      Text(
-                        game.title,
-                        style: const TextStyle(
-                          color: Colors.deepPurple,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+
                       // Platform
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Column(
                           children: [
+                            Row(
+                              children: [
+                                Text(
+                                  game.title,
+                                  style: const TextStyle(
+                                    color: Colors.deepPurple,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const Divider(
+                              color: Colors.deepPurple,
+                              thickness: 0.3,
+                            ),
                             Row(
                               children: [
                                 Text("Platform : ${game.platform}"),
@@ -92,16 +120,38 @@ class _PCGameDetailsScreenState extends State<PCGameDetailsScreen> {
                                     : FontAwesomeIcons.weebly)
                               ],
                             ),
-                            // pUblisher
+                            const Divider(
+                              color: Colors.deepPurple,
+                              thickness: 0.3,
+                            ),
                             Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text("Publisher : ${game.publisher}"),
+                                SizedBox(
+                                    width: size.width * 0.5,
+                                    child:
+                                        Text("Publisher : ${game.publisher}")),
                                 const SizedBox(
                                   width: 15,
                                 ),
-                                Text("Publisher : ${game.releaseDate}"),
+                                Text(game.releaseDate
+                                    .toString()
+                                    .substring(0, 10)
+                                    .replaceAll('-', '/')),
                               ],
                             ),
+                            const Divider(
+                              color: Colors.deepPurple,
+                              thickness: 0.3,
+                            ),
+                            Row(
+                              children: [
+                                SizedBox(
+                                    width: size.width * 0.9,
+                                    child: Text(game.shortDescription)),
+                              ],
+                            )
                           ],
                         ),
                       ),
@@ -132,6 +182,10 @@ class _PCGameDetailsScreenState extends State<PCGameDetailsScreen> {
                               ),
                             );
                           })),
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(game.description),
+                      )
                     ],
                   ),
                 )),
